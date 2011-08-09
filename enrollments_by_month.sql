@@ -1,6 +1,16 @@
 select base_schoolid
       ,base_grade_level
-      ,sum(aug_member)
+      ,sum(aug_member) as aug_member
+      ,sum(sep_member) as sep_member
+      ,sum(oct_member) as oct_member
+      ,sum(nov_member) as nov_member
+      ,sum(dec_member) as dec_member
+      ,sum(jan_member) as jan_member
+      ,sum(feb_member) as feb_member
+      ,sum(mar_member) as mar_member
+      ,sum(apr_member) as apr_member
+      ,sum(may_member) as may_member
+      ,sum(jun_member) as jun_member
 from
 
   
@@ -17,7 +27,7 @@ from
                  ,case when re.entrydate >='01-AUG-10' and re.exitdate >= '01-APR-11' then 1 else 0 end as mar_member
                  ,case when re.entrydate >='01-AUG-10' and re.exitdate >= '01-MAY-11' then 1 else 0 end as apr_member
                  ,case when re.entrydate >='01-AUG-10' and re.exitdate >= '01-JUN-11' then 1 else 0 end as may_member
-                 ,case when re.entrydate >='01-AUG-10' and re.exitdate >= '01-JUN-11' then 1 else 0 end as jun_member
+                 ,case when re.entrydate >='01-AUG-10' and re.exitdate >= '01-JUN-11' and re.exitdate < '01-JUL-11' then 1 else 0 end as jun_member
            from reenrollments re
            where re.entrydate >= '01-AUG-10' and re.exitdate < '01-JUL-11' --and re.schoolid != 999999
            union all
@@ -34,7 +44,7 @@ from
                  ,case when students.entrydate >='01-AUG-10' and students.exitdate >= '01-APR-11' then 1 else 0 end as mar_member
                  ,case when students.entrydate >='01-AUG-10' and students.exitdate >= '01-MAY-11' then 1 else 0 end as apr_member
                  ,case when students.entrydate >='01-AUG-10' and students.exitdate >= '01-JUN-11' then 1 else 0 end as may_member
-                 ,case when students.entrydate >='01-AUG-10' and students.exitdate >= '01-JUN-11' then 1 else 0 end as jun_member
+                 ,case when students.entrydate >='01-AUG-10' and students.exitdate >= '01-JUN-11' and students.exitdate < '01-JUL-11' then 1 else 0 end as jun_member
           from students
           where students.entrydate > '01-AUG-10'
             and students.enroll_status > 0 and students.exitdate > '01-AUG-10') --and students.schoolid != 999999
