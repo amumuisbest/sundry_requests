@@ -60,10 +60,11 @@ from
                      ,psad.att_code
               from
               
-              --find ALL students enrolled at NCA during 2010-2011.  this is a combination of
+              --find ALL students enrolled in TEAM Schools during 2010-2011.  this is a combination of
               --reenrollments table AND students table.  reenrollments has students who
-              --finished the year at NCA; students table has students who TRANSFERRED mid year.
-              --this base query gets both of those via a union operator.
+              --finished the year; students table has students who TRANSFERRED mid year.  need to exclude
+              --enroll status = 3 because those students are graduated (not transfers)
+              --this base query gets the data from these two tables via a union operator.
               (select distinct re.studentid as base_studentid
                       --select distinct is kinda sloppy here...but a kid can tranfer in and out over the course of the year
                       --and you don't want dupes.  so there you have it...
