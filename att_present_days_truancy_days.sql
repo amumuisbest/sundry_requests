@@ -73,7 +73,7 @@ from
        ,students.grade_level as base_grade_level
 from students
 where students.entrydate > '01-AUG-10'
-  and students.enroll_status > 0 and students.exitdate > '01-AUG-10')
+  and students.enroll_status > 0 and students.exitdate > '01-AUG-10' and students.enroll_status != 3)
 --end of the base query that finds all 2010-2011 students
 
 left outer join students s on base_studentid = s.id and s.entrydate >= '01-AUG-10'
