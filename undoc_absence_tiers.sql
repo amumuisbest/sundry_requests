@@ -51,7 +51,7 @@ from
                  else 0
                  end) as OSS
       from
-              (select studentid as base_studentid
+              (select distinct studentid as base_studentid
                      ,s.lastfirst as base_lastfirst
                      ,s.gender as base_gender
                      ,base_schoolid
@@ -77,7 +77,7 @@ from
                      ,students.schoolid as base_schoolid
                      ,students.grade_level as base_grade_level
               from students
-              where students.entrydate > '01-AUG-10'
+              where students.entrydate > '01-AUG-10' and students.entrydate < '20-JUN-11'
                 and students.enroll_status > 0 and students.exitdate > '01-AUG-10' and students.enroll_status != 3)
               --end of the base query that finds all 2010-2011 students
               
