@@ -24,6 +24,7 @@ select student_number
             else null end as family_web_id
       ,family_web_password
       ,dupe_flag
+--      ,dob
 from
       (select student_number
             ,student_web_id
@@ -34,6 +35,7 @@ from
             ,alt_family_web_id
             --a duplicate is defined as someone who has the same web id as the person ABOVE or BELOW them.  this logic sets a flag.
             ,case when (student_web_id = previous OR student_web_id = next) then 1 else null end as dupe_flag
+            ,dob
       from
             (select student_number 
                   ,student_web_id
@@ -44,45 +46,47 @@ from
                   ,alt_family_web_id
                   --lag and lead allow us to make in-row comparisons to the previous/next student by last name & DOB.  this will determine twin-ness.
                   ,lag(student_web_id,1) over (order by student_web_id) as previous
-                  ,lead(student_web_id,1) over (order by student_web_id) as next                 
+                  ,lead(student_web_id,1) over (order by student_web_id) as next 
+                  ,dob
             from
                   (select student_number
-                          ,case when length(replace(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'MMDD'),'0','')) > 12 
-                                then lower(substr(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(replace(to_char(dob,'MMDD'),'0',''))))) || replace(to_char(dob,'MMDD'),'0','') || '.student'
+                           --FM is a switch that drops leading or trailing blanks.  so abari october 13 comes out as abari 1013 but abari may 7 comes out abari 57 (not 0507).
+                          ,case when length(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'FMMMDD')) > 12 
+                                then lower(substr(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(to_char(dob,'FMMMDD'))))) || to_char(dob,'FMMMDD') || '.student'
                                 else
                                     lower(
                                            replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','')
-                                          ) || replace(to_char(dob,'MMDD'),'0','') || '.student' end
+                                          ) || to_char(dob,'FMMMDD') || '.student' end
                                 as student_web_id
                           ,lower(
                                  replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','')
                                 ) || to_char(dob,'YY')
                                 as student_web_password
-                          ,case when length(replace(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'MMDD'),'0','')) > 12 
-                                then lower(substr(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(replace(to_char(dob,'MMDD'),'0',''))))) || replace(to_char(dob,'MMDD'),'0','') || '.family'
+                          ,case when length(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'FMMMDD')) > 12 
+                                then lower(substr(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(to_char(dob,'FMMMDD'))))) || to_char(dob,'FMMMDD') || '.family'
                                 else
                                     lower(
                                            replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','')
-                                          ) || replace(to_char(dob,'MMDD'),'0','') || '.family' end
+                                          ) || to_char(dob,'FMMMDD') || '.family' end
                                 as family_web_id
                           ,lower(
                                  replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','')
                                 ) || to_char(dob,'YY')
                                 as family_web_password
                           --alternate web ids that use first name for duplicates    
-                          ,case when length(replace(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'MMDD'),'0','')) > 12 
-                                then lower(substr(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(replace(to_char(dob,'MMDD'),'0',''))))) || replace(to_char(dob,'MMDD'),'0','') || '.student'
+                          ,case when length(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'FMMMDD')) > 12 
+                                then lower(substr(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(to_char(dob,'FMMMDD'))))) || to_char(dob,'FMMMDD') || '.student'
                                 else
                                     lower(
                                            replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','')
-                                          ) || replace(to_char(dob,'MMDD'),'0','') || '.student' end
+                                          ) || to_char(dob,'FMMMDD') || '.student' end
                                 as alt_student_web_id
-                          ,case when length(replace(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'MMDD'),'0','')) > 12 
-                                then lower(substr(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(replace(to_char(dob,'MMDD'),'0',''))))) || replace(to_char(dob,'MMDD'),'0','') || '.family'
+                          ,case when length(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'FMMMDD')) > 12 
+                                then lower(substr(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(to_char(dob,'FMMMDD'))))) || to_char(dob,'FMMMDD') || '.family'
                                 else
                                     lower(
                                            replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','')
-                                          ) || replace(to_char(dob,'MMDD'),'0','') || '.family' end
+                                          ) || to_char(dob,'FMMMDD') || '.family' end
                                 as alt_family_web_id                        
                           ,lastfirst
                           ,first_name
@@ -99,5 +103,5 @@ from
                                ,lastfirst
                                ,dob
                          from students s
-                         where enroll_status = 0)))) 
+                         where enroll_status <= 0)))) 
 ;
