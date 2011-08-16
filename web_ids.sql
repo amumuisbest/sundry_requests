@@ -47,36 +47,42 @@ from
                   ,lead(student_web_id,1) over (order by student_web_id) as next                 
             from
                   (select student_number
-                          ,case when length(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'DD')) > 12 
-                                then lower(substr(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(to_char(dob,'DD'))))) || to_char(dob,'DD') || '.student'
+                          ,case when length(replace(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'MMDD'),'0','')) > 12 
+                                then lower(substr(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(replace(to_char(dob,'MMDD'),'0',''))))) || replace(to_char(dob,'MMDD'),'0','') || '.student'
                                 else
                                     lower(
                                            replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','')
-                                          ) || to_char(dob,'DD') || '.student' end
+                                          ) || replace(to_char(dob,'MMDD'),'0','') || '.student' end
                                 as student_web_id
                           ,lower(
                                  replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','')
                                 ) || to_char(dob,'YY')
                                 as student_web_password
-                          ,case when length(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'DD')) > 12 
-                                then lower(substr(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(to_char(dob,'DD'))))) || to_char(dob,'DD') || '.family'
+                          ,case when length(replace(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'MMDD'),'0','')) > 12 
+                                then lower(substr(replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(replace(to_char(dob,'MMDD'),'0',''))))) || replace(to_char(dob,'MMDD'),'0','') || '.family'
                                 else
                                     lower(
                                            replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','')
-                                          ) || to_char(dob,'DD') || '.family' end
+                                          ) || replace(to_char(dob,'MMDD'),'0','') || '.family' end
                                 as family_web_id
                           ,lower(
                                  replace(replace(replace(replace(last_name, '''',''),'.',''),' ',''),',','')
                                 ) || to_char(dob,'YY')
                                 as family_web_password
                           --alternate web ids that use first name for duplicates    
-                          ,lower(
-                                 replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','')
-                                ) || to_char(dob,'DD') || '.student'
+                          ,case when length(replace(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'MMDD'),'0','')) > 12 
+                                then lower(substr(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(replace(to_char(dob,'MMDD'),'0',''))))) || replace(to_char(dob,'MMDD'),'0','') || '.student'
+                                else
+                                    lower(
+                                           replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','')
+                                          ) || replace(to_char(dob,'MMDD'),'0','') || '.student' end
                                 as alt_student_web_id
-                          ,lower(
-                                 replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','')
-                                ) || to_char(dob,'DD') || '.family'
+                          ,case when length(replace(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','') || to_char(dob,'MMDD'),'0','')) > 12 
+                                then lower(substr(replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',',''), 1, (12 - length(replace(to_char(dob,'MMDD'),'0',''))))) || replace(to_char(dob,'MMDD'),'0','') || '.family'
+                                else
+                                    lower(
+                                           replace(replace(replace(replace(first_name, '''',''),'.',''),' ',''),',','')
+                                          ) || replace(to_char(dob,'MMDD'),'0','') || '.family' end
                                 as alt_family_web_id                        
                           ,lastfirst
                           ,first_name
@@ -85,9 +91,10 @@ from
                           
                   from 
                         --pre-process all last names to drop the hyphen and only use the first last name.
+                        --remove all jrs from last names
                         (select student_number
-                               ,case when substr(last_name, 1, instr(last_name,'-',1,1)-1) is null then last_name
-                                else substr(last_name, 1, instr(last_name,'-',1,1)-1) end as last_name
+                               ,replace(lower(case when substr(last_name, 1, instr(last_name,'-',1,1)-1) is null then last_name
+                                else substr(last_name, 1, instr(last_name,'-',1,1)-1) end),'jr','') as last_name
                                ,first_name
                                ,lastfirst
                                ,dob
