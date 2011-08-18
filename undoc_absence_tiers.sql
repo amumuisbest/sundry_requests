@@ -1,17 +1,10 @@
-select school_name
-      ,sum(case when rc_absence_status = '10 or more' then 1 else 0 end) as absent_10_plus
-      ,sum(case when rc_absence_status = '5 to 9' then 1 else 0 end) as absent_5_to_9
-      ,sum(case when rc_absence_status = '1 to 4' then 1 else 0 end) as absent_1_to_4
-from      
-(select base_studentid
+select distinct base_studentid
        ,base_lastfirst
        ,base_schoolid
        ,schools.abbreviation as school_name
        ,base_grade_level
-       ,absences_undoc as absences_toward_truancy
-       ,case when absences_undoc >= 10 then '10 or more'
-            when absences_undoc >= 5 then '5 to 9'
-            when absences_undoc >= 1 then '1 to 4' else null end as RC_absence_status
+       ,absences_undoc + absences_doc + OSS as total_absences
+       ,sum(mem_reg.studentmembership) as mem
  from
       (select base_studentid
             ,base_lastfirst
@@ -106,5 +99,4 @@ from
               ,tardies_T10
               ,iss
               ,oss
-      order by base_grade_level, base_lastfirst)
-group by cube(school_name);
+      order by base_grade_level, base_lastfirst;
