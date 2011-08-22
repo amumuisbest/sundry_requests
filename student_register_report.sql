@@ -102,5 +102,5 @@ from
                                                         and mem_reg.calendarmembership = 1
     group by base_studentid, base_schoolid, base_grade_level, lastfirst, lunchstatus, absences_undoc, absences_doc)
 where membership_days > 0
-;
+order by membership_days asc;
 

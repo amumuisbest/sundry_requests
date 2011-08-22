@@ -5,14 +5,14 @@ select SID
       ,SBIRTHDAY
       ,SRACE
       ,SGRADE
-      ,SUSERNAME || rn as SUSERNAME
+      ,SUSERNAME || (case when rn = 0 then null else rn end) as SUSERNAME
       ,SPASSWORD
       ,'AR' as course
       ,2024 + (-1 * (case when SGRADE = 'K' then 0 else SGRADE * 1 end)) as class
 from
       (select SID, SFIRST, SLAST, SGENDER, SBIRTHDAY, SRACE, SGRADE,
              SUSERNAME, SPASSWORD, row_number() over(partition by SUSERNAME
-                                                         order by SGRADE, SLAST, SFIRST desc) as rn
+                                                         order by SGRADE, SLAST, SFIRST desc) - 1 as rn
       from
             (select SID, SFIRST, SLAST, SGENDER, SBIRTHDAY, SRACE, SGRADE,
                    substr(lower(SFIRST), 1, 1) || last04 as SUSERNAME,
