@@ -8,7 +8,7 @@ select SIS_ID
       ,LAST_NAME
       ,USER_NAME
       ,PASSWORD
-      ,case when SIS_ID > 0 then 'Rise Academy' else null end as SCHOOL_NAME
+      ,'TEAM Academy' as SCHOOL_NAME
       ,2024 + (-1 * GRADE) as CLASS_NAME
 from
 (select s.student_number as SIS_ID
@@ -20,6 +20,5 @@ from
       ,student_web_id as USER_NAME
       ,student_web_password as PASSWORD
 from students s
-left outer join reenrollments re on s.id = re.studentid
-where s.enroll_status < 1 and re.entrydate is null and s.schoolid = 133570965)
+where s.enroll_status <= 0 and s.schoolid = 133570965)
 order by GRADE, LAST_NAME, FIRST_NAME
