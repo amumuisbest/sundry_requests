@@ -103,5 +103,5 @@ from
                                ,lastfirst
                                ,dob
                          from students s
-                         where enroll_status <= 0)))) 
+                         where enroll_status <= 0 and web_id is null)))) 
 ;
