@@ -1,16 +1,18 @@
 create or replace view y_ops_rise_bad_ar as
 select distinct student_number
       ,lastfirst
-      ,rowstatus
-      ,enroll_status
+      ,class_name
+      ,RL_status
+      ,PS_status
       ,schoolid
       ,status
 from
      (select rluser."vchPreviousIDNum" as student_number
             ,s.lastfirst
-            ,s.enroll_status
+            ,s.enroll_status as PS_status
             ,s.schoolid
-            ,rluser."tiRowStatus" as rowstatus
+            ,rluser."tiRowStatus" as RL_status
+            ,consolidated."vchClassName" as class_name
             ,case when s.schoolid != 73252 then 'in error'
                   when s.enroll_status != 0 then 'in error'
                   else 'ok' end as status
