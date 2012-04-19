@@ -14,6 +14,8 @@ FROM
             ,CASE
               --edge case: 8th grade transfers
                WHEN basis.highest_achieved = 8 AND eighth_outcome.exitcode LIKE 'T%' THEN 0
+              --another edge case: retained students that are continuing to make progress
+               WHEN students.enroll_status = 0 AND students.grade_level <= 8 THEN 1
               --8th grade graduate or better 
                WHEN basis.highest_achieved >= 8 THEN 1
                ELSE 0
@@ -22,6 +24,8 @@ FROM
       LEFT OUTER JOIN cohort_table_long eighth_outcome
         ON basis.studentid = eighth_outcome.studentid
        AND eighth_outcome.grade_level = 8
+      LEFT OUTER JOIN students@PS_TEAM
+        ON basis.studentid = students.id
       WHERE basis.grade_level = 5
         AND basis.year <= 2008
       ORDER BY start_cohort
@@ -49,6 +53,8 @@ FROM
             ,CASE
               --edge case: 8th grade transfers
                WHEN basis.highest_achieved = 8 AND eighth_outcome.exitcode LIKE 'T%' THEN 0
+              --another edge case: retained students that are continuing to make progress
+               WHEN students.enroll_status = 0 AND students.grade_level <= 8 THEN 1
               --8th grade graduate or better 
                WHEN basis.highest_achieved >= 8 THEN 1
                ELSE 0
@@ -62,6 +68,8 @@ FROM
       LEFT OUTER JOIN cohort_table_long eighth_outcome
         ON basis.studentid = eighth_outcome.studentid
        AND eighth_outcome.grade_level = 8
+      LEFT OUTER JOIN students@PS_TEAM
+        ON basis.studentid = students.id
       WHERE basis.grade_level = 5
         AND basis.year <= 2008
       ORDER BY start_cohort
