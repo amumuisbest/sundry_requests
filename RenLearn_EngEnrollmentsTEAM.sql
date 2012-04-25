@@ -13,7 +13,7 @@ select s.student_number as sid
       ,t.last_name as TLAST
       ,row_number() over(partition by s.student_number order by s.grade_level, s.lastfirst desc) as rn
 from students s
-join cc on s.id = cc.studentid and cc.termid = 2102 and cc.schoolid = 133570965
+join cc on s.id = cc.studentid and cc.termid = 2103 and cc.schoolid = 133570965
 join sections sect on sect.id = cc.sectionid
 join courses c on sect.course_number = c.course_number and c.credittype = 'ENG'
 join teachers t on sect.teacher = t.id
