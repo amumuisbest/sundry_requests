@@ -61,6 +61,7 @@ FROM
              END as graduate_flag
             ,CASE
                WHEN basis.highest_achieved = 8 AND eighth_outcome.exitcode LIKE 'T%' THEN basis.lastfirst
+               WHEN students.enroll_status = 0 AND students.grade_level <= 8 THEN null
                WHEN basis.highest_achieved < 8 THEN basis.lastfirst
                ELSE null
              END as transfers
