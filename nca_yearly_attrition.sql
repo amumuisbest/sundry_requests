@@ -75,4 +75,5 @@ FROM
        AND cohort_12.year = 2011
       WHERE cohort_11.schoolid = 73253
         AND cohort_11.year = 2010
-      ) level_01
+      ) level_01      
+;
