@@ -117,6 +117,30 @@ from
 UNION ALL
 
 select count(lastfirst) as count
+      ,'count of 2012 cohort 8th grade 2007' as detail
+from
+           (select cohort.studentid
+                  ,cohort.lastfirst
+                  ,cohort.year
+                  ,cohort.cohort
+                  ,cohort.grade_level
+                  ,cohort.highest_achieved
+                  ,case when cohort.schoolid = 999999 
+                        then null 
+                        else row_number() over (partition by cohort.studentid
+                                                order by cohort.year asc) end as rn_cycle
+            from cohort$comprehensive_long cohort
+            where cohort =  2012
+              --and year   =  2011
+              and grade_level = 8
+      )
+      
+
+      
+
+UNION ALL
+
+select count(lastfirst) as count
       ,'count of 2012 cohort graduating NCA june 2012' as detail
 from
            (select cohort.studentid
@@ -134,4 +158,34 @@ from
               and year   =  2011
               and highest_achieved = 99
       )
+
+
 ;
+
+
+--Transfers to other HSs
+--(powerschool)
+
+SELECT 
+    case 
+        when s.schoolid = 73252 then 'Rise'
+        when s.schoolid = 133570965 then 'TEAM'
+        when s.schoolid = 73253 then 'NCA'
+        when s.schoolid = 73254 then 'SPARK'
+     else null end School
+    ,s.STUDENT_NUMBER as SN
+    ,s.grade_level as gr
+    ,s.LASTFIRST
+    ,s.ENTRYDATE
+    ,s.EXITDATE
+    ,s.EXITCODE
+    ,s.EXITCOMMENT
+    ,s.ENROLL_STATUS
+
+FROM ps.students s
+
+WHERE s.exitdate >= '01-AUG-11' 
+  AND s.exitdate <= '01-JUL-12' 
+  AND s.enroll_status >= 2
+
+order by s.exitdate desc
