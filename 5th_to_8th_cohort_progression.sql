@@ -20,14 +20,14 @@ FROM
                WHEN basis.highest_achieved >= 8 THEN 1
                ELSE 0
              END as graduate_flag
-      FROM cohort_table_long basis
-      LEFT OUTER JOIN cohort_table_long eighth_outcome
+      FROM cohort$comprehensive_long basis
+      LEFT OUTER JOIN cohort$comprehensive_long eighth_outcome
         ON basis.studentid = eighth_outcome.studentid
        AND eighth_outcome.grade_level = 8
       LEFT OUTER JOIN students@PS_TEAM
         ON basis.studentid = students.id
       WHERE basis.grade_level = 5
-        AND basis.year <= 2008
+        AND basis.year <= 2011
       ORDER BY start_cohort
               ,lastfirst
       ) level_1
