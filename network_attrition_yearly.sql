@@ -67,7 +67,7 @@ FROM
                               ,LEAD(cohort.schoolid, 1)    OVER (ORDER BY cohort.studentid, year asc) as next_row_sch
                               --,row_number() OVER (PARTITION BY studentid
                               --                    order by year asc) as rn
-                        FROM cohort_table_long cohort
+                        FROM cohort$comprehensive_long cohort
                         JOIN schools@PS_TEAM on cohort.schoolid = schools.school_number
                         JOIN students@PS_TEAM on cohort.studentid = students.id
                         --exclude graduated students entries
@@ -159,7 +159,7 @@ FROM
                               ,LEAD(cohort.schoolid, 1)    OVER (ORDER BY cohort.studentid, year asc) as next_row_sch
                               --,row_number() OVER (PARTITION BY studentid
                               --                    order by year asc) as rn
-                        FROM cohort_table_long cohort
+                        FROM cohort$comprehensive_long cohort
                         JOIN schools@PS_TEAM on cohort.schoolid = schools.school_number
                         JOIN students@PS_TEAM on cohort.studentid = students.id
                         --exclude graduated students entries
@@ -228,7 +228,7 @@ FROM
                         ,LEAD(cohort.schoolid, 1)    OVER (ORDER BY cohort.studentid, year asc) as next_row_sch
                         --,row_number() OVER (PARTITION BY studentid
                         --                    order by year asc) as rn
-                  FROM cohort_table_long cohort
+                  FROM cohort$c cohort
                   JOIN schools@PS_TEAM on cohort.schoolid = schools.school_number
                   JOIN students@PS_TEAM on cohort.studentid = students.id
                   --exclude graduated students entries
