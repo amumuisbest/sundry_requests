@@ -1,3 +1,61 @@
+--NEW
+
+SELECT base.internalid
+      ,base.grade_lev_2011_12
+      ,year_in_hs.hs_year
+      ,base.SID
+      ,base.student
+      ,schools.abbreviation AS school
+      ,sg.course_name
+      ,sg.grade
+      ,sg.percent
+      ,sg.potentialcrhrs
+      ,sg.earnedcrhrs
+FROM
+     (SELECT cohort.studentid AS internalid
+            ,cohort.grade_level AS grade_lev_2011_12
+            ,cust.SID
+            ,cohort.schoolid
+            ,s.lastfirst
+            ,s.first_name || ' ' || s.last_name AS student
+      FROM cohort$comprehensive_long cohort
+      JOIN students s 
+        ON s.id = cohort.studentid
+      JOIN custom_students cust
+        ON s.id = cust.studentid
+      WHERE cohort.year = 2011
+        AND cohort.schoolid != 999999
+        AND cohort.schoolid = 73253
+      ) base
+JOIN schools@PS_TEAM 
+  ON base.schoolid = schools.school_number
+JOIN storedgrades@PS_TEAM sg
+  ON base.internalid = sg.studentid
+ AND sg.termid >= 2100 
+ AND sg.termid <  2200
+ AND sg.potentialcrhrs > 0
+LEFT OUTER JOIN
+   (SELECT studentid
+          ,year
+          ,hs_year
+    FROM
+          (SELECT cohort.*
+                 ,row_number() OVER
+                    (PARTITION BY studentid
+                     ORDER BY year ASC) AS hs_year 
+          FROM cohort$comprehensive_long cohort
+          WHERE schoolid = 73253
+          ) 
+    ) year_in_hs
+  ON year_in_hs.studentid = base.internalid
+  WHERE year_in_hs.year = 2011
+
+;
+
+
+;
+
+--OLD
 SELECT internal_id
       ,student_number
       ,state_id
