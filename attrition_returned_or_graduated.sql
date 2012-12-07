@@ -2,7 +2,13 @@
 SELECT decode(GROUPING(school),0,to_char(school),'network') AS school
       ,decode(GROUPING(year),0,to_char(year),'all years') AS year
       ,ROUND(AVG(reenroll_dummy)*100,0) AS reenroll_pct
+      ,ROUND(AVG(male_transf_dummy)*100,0) AS male_transf_pct
+      ,ROUND(AVG(female_transf_dummy)*100,0) AS female_transf_pct
       ,100 - ROUND(AVG(reenroll_dummy)*100,0) AS attr_pct
+      --,ROUND(AVG(math_scale_leavers),1) AS math_scale_leavers
+      --,ROUND(AVG(math_scale_stayers),1) AS math_scale_stayers
+      --,ROUND(AVG(ela_scale_leavers),1) AS ela_scale_leavers
+      --,ROUND(AVG(ela_scale_stayers),1) AS ela_scale_stayers
       ,COUNT(*) AS N
       --,listagg(attr_detail, ', ') WITHIN GROUP 
       --   (ORDER BY lastfirst) AS audit_detail
@@ -12,12 +18,38 @@ FROM
                WHEN reenroll.reenroll_dummy = 0 THEN short_name
                ELSE null
              END AS attr_detail
+            ,CASE
+               WHEN reenroll.gender = 'M' AND reenroll_dummy = 0 THEN 1
+               ELSE 0
+             END AS male_transf_dummy
+            ,CASE
+               WHEN reenroll.gender = 'F' AND reenroll_dummy = 0 THEN 1
+               ELSE 0
+             END AS female_transf_dummy
+            ,CASE
+               WHEN reenroll.reenroll_dummy = 0 THEN math_scale
+               ELSE null
+             END AS math_scale_leavers
+            ,CASE
+               WHEN reenroll.reenroll_dummy != 0 THEN math_scale
+               ELSE null
+             END AS math_scale_stayers
+            ,CASE
+               WHEN reenroll.reenroll_dummy = 0 THEN ela_scale
+               ELSE null
+             END AS ela_scale_leavers
+            ,CASE
+               WHEN reenroll.reenroll_dummy != 0 THEN ela_scale
+               ELSE null
+             END AS ela_scale_stayers
+
       FROM 
            (SELECT base.studentid
                   ,base.lastfirst
                   ,SUBSTR(students.first_name,1,1) || ' ' || students.last_name AS short_name
                   ,base.grade_level
                   ,base.year
+                  ,students.gender
                   ,schools.abbreviation AS school
                   ,to_char(base.exitdate,'MON') AS exit_month
                   ,CASE
@@ -28,9 +60,19 @@ FROM
                    END AS reenroll_dummy
                   ,next.grade_level AS grade_plus_1
                   ,next.year AS year_plus_1
+                  ,njask_math.njask_scale_score AS math_scale
+                  ,njask_ela.njask_scale_score AS ela_scale
             FROM cohort$comprehensive_long base
             JOIN students ON base.studentid = students.id
             JOIN schools@PS_TEAM on base.schoolid = schools.school_number
+            LEFT OUTER JOIN njask$detail njask_math
+              ON base.studentid = njask_math.njask_studentid
+             AND base.year = njask_math.test_year
+             AND njask_math.subject = 'Math'
+            LEFT OUTER JOIN njask$detail njask_ela
+              ON base.studentid = njask_ela.njask_studentid
+             AND base.year = njask_ela.test_year
+             AND njask_ela.subject = 'ELA'
             --left outer keeps all base records even if no matching next year record is found
             LEFT OUTER JOIN cohort$comprehensive_long next
              --same studentd 
