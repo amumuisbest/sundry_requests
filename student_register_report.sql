@@ -1,3 +1,6 @@
+--ARCHIVE
+--USE REGISTER REPORT CUBE AS REPLACEMENT
+
 select base_studentid
       ,base_schoolid
       ,base_grade_level
@@ -76,7 +79,7 @@ from
                              --turning this into a subquery allows us to take only rn = 1, ie the 'last' re-entry event of the year.
                              ,row_number() over(partition by re.studentid order by re.exitdate desc) as rn
                        from reenrollments re
-                       where re.entrydate >= '01-AUG-10' and re.exitdate < '01-JUL-11' and (re.exitdate - re.entrydate) > 0)
+                       where re.entrydate >= '01-AUG-12' and re.exitdate < '01-JUL-13' and (re.exitdate - re.entrydate) > 0)
                   where rn = 1
                    union all
                    --get the students who TRANSFERRED mid year last year.
@@ -87,18 +90,18 @@ from
                          ,students.schoolid as base_schoolid
                          ,students.grade_level as base_grade_level
                   from students
-                  where students.entrydate > '01-AUG-10' and students.entrydate < '28-JUN-11'
-                    and students.enroll_status > 0 and students.exitdate > '01-AUG-10' and students.schoolid != 999999 
+                  where students.entrydate >= '01-AUG-12' and students.entrydate <= '28-JUN-13'
+                    and students.enroll_status > 0 and students.exitdate >= '01-AUG-12' and students.schoolid != 999999 
                     and (students.exitdate - students.entrydate) > 0)
             left outer join students s on base_studentid = s.id
             left outer join PS_ATTENDANCE_DAILY psad on base_studentid = psad.studentid 
-                                                            and psad.att_date >= '01-AUG-10'
-                                                            and psad.att_date <  '01-JUL-11'
+                                                            and psad.att_date >= '01-AUG-12'
+                                                            and psad.att_date <  '01-JUL-13'
                                                             and psad.att_code is not null)
         group by base_studentid, base_schoolid, base_grade_level, lastfirst, lunchstatus)
     left outer join pssis_membership_reg mem_reg on base_studentid = mem_reg.studentid 
-                                                        and mem_reg.calendardate >  '01-AUG-10' 
-                                                        and mem_reg.calendardate <= '01-JUL-11'
+                                                        and mem_reg.calendardate >=  '01-AUG-12' 
+                                                        and mem_reg.calendardate <= '01-JUL-13'
                                                         and mem_reg.calendarmembership = 1
     group by base_studentid, base_schoolid, base_grade_level, lastfirst, lunchstatus, absences_undoc, absences_doc)
 where membership_days > 0

@@ -173,3 +173,74 @@ join cc on cc.studentid = base_studentid
 --join sections sect on cc.sectionid = sect.id
 --join courses c on sect.course_number = c.course_number 
 --       and c.course_number IN ('SCI20','SCI25')
+
+
+;
+
+
+--NJASK Rosters
+--NJASK Rosters
+
+select
+     student_number as LocalIdentificationNumber
+    ,ps_customfields.getcf('students',s.id,'SID') as StateIdentificationNumber
+    ,first_name as FirstName
+    ,last_name as LastName
+    ,DOB as DateOfBirth
+    ,null as Section504
+    ,null as SE504SettingAccom
+    ,null as SE504ScheduleAccom
+    ,null as SE504TestMaterialAccom
+    ,null as SE504TestProcedureAccom
+    ,null as APAScienceTest
+    ,null as APAMathTest
+    ,null as APALanguageTest
+    ,null as LEPExemptFromTakingLAL
+    ,case
+      when districtentrydate >= '01-JUL-12' then 'Y'
+      else 'N'
+      end as TimeInDistrictLessThanOneYear
+    ,case
+      when districtentrydate >= '01-JUL-12' then 'Y'
+      else 'N'
+      end as TimeInSchoolLessThanOneYear
+    ,80 as StateAss_TestingSiteCounty
+    ,7325 as StateAss_TestingSiteDistrict
+    ,965 as StateAss_TestingSiteSchool
+    ,80 as StateAss_AccountableCounty
+    ,7325 as StateAss_AccountableDistrict
+    ,965 as StateAss_AccountableSchool
+    ,null as ExaminerSMIDDay1
+    ,null as ExaminerSMIDDay2
+    ,null as ExaminerSMIDDay3
+    ,null as ExaminerSMIDDay4
+    ,null as ExaminerSMIDDay5
+from students s
+where s.enroll_status = 0
+  and s.grade_level >= 3
+  and s.grade_level <= 8
+order by s.schoolid,s.grade_level,s.lastfirst
+
+
+;
+--district entry date fix
+select *
+from
+(select 
+   s.schoolid
+  ,s.student_number
+  ,s.lastfirst
+  ,s.grade_level
+  ,re.entrydate
+  ,s.districtentrydate
+  ,CASE WHEN s.schoolid = 1000000 THEN NULL
+        else row_number() OVER (PARTITION BY re.studentid--,re.entrydate
+                          ORDER BY re.studentid,re.entrydate)
+                          end as row_count
+from reenrollments re
+join students s on re.studentid = s.id
+where s.enroll_status = 0
+--  and entrydate >= '6-SEP-12'
+    and districtentrydate <= '01-JAN-02'
+    )
+where row_count = 1
