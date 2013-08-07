@@ -1,10 +1,10 @@
 --cube and drop audit detail
 SELECT decode(GROUPING(school),0,to_char(school),'network') AS school
       ,decode(GROUPING(year),0,to_char(year),'all years') AS year
-      ,ROUND(AVG(reenroll_dummy)*100,0) AS reenroll_pct
+      ,ROUND(AVG(reenroll_dummy)*100,1) AS reenroll_pct
       ,ROUND(AVG(male_transf_dummy)*100,0) AS male_transf_pct
       ,ROUND(AVG(female_transf_dummy)*100,0) AS female_transf_pct
-      ,100 - ROUND(AVG(reenroll_dummy)*100,0) AS attr_pct
+      ,100 - ROUND(AVG(reenroll_dummy)*100,1) AS attr_pct
       --,ROUND(AVG(math_scale_leavers),1) AS math_scale_leavers
       --,ROUND(AVG(math_scale_stayers),1) AS math_scale_stayers
       --,ROUND(AVG(ela_scale_leavers),1) AS ela_scale_leavers
@@ -143,6 +143,7 @@ FROM
             WHERE base.rn = 1 AND base.schoolid != 999999 AND base.year < 2012
             ) reenroll
       ) audit_detail
+WHERE school = 'Rise'
 GROUP BY school
         ,year
 ORDER BY school
