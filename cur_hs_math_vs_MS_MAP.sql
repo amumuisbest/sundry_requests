@@ -36,7 +36,7 @@ FROM
                      (PARTITION BY map.ps_studentid
                         ORDER BY map_year_academic DESC)
                    AS rn
-            FROM KIPP_NWK.map_comprehensive_identifiers map
+            FROM KIPP_NWK.map$comprehensive_identifiers map
             --demographics
             JOIN students 
               ON students.id = map.ps_studentid
@@ -46,7 +46,7 @@ FROM
               AND map.rn = 1
             ORDER BY map.ps_studentid
             ) map
-      LEFT OUTER JOIN nca_grades_extended grades
+      LEFT OUTER JOIN grades$detail#nca grades
         ON map.ps_studentid = grades.studentid
         AND grades.course_name LIKE '%Algebra%'
         AND grades.grade_level = 9
@@ -55,7 +55,7 @@ FROM
         AND sg.storecode = 'Y1'
         AND sg.course_name IN ('Algebra','Algebra I','Honors Algebra')
         AND sg.grade_level = 9
-      LEFT OUTER JOIN KIPP_NWK.map_comprehensive_identifiers map_reading
+      LEFT OUTER JOIN KIPP_NWK.map$comprehensive_identifiers map_reading
         ON map.ps_studentid = map_reading.ps_studentid
         AND map_reading.measurementscale = 'Reading'
         AND map_reading.grade_level = 8
