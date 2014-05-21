@@ -31,6 +31,8 @@ WITH roster AS
    JOIN courses
      ON sections.course_number = courses.course_number
     AND courses.credittype LIKE @credittype
+   WHERE cc.dateenrolled <= GETDATE()
+	    AND cc.dateleft >= GETDATE()
   )
 
 SELECT roster.*

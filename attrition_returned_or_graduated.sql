@@ -82,9 +82,10 @@ FROM
              --evaluate canonical record from next year result set
              AND next.rn = 1
             --canonical record from base and don't include graduated students
-            WHERE base.rn = 1 AND base.schoolid != 999999 AND base.year < 2012
+            WHERE base.rn = 1 AND base.schoolid != 999999 AND base.year < 2013
             ) reenroll
       ) audit_detail
+--WHERE year = 2012
 GROUP BY CUBE(school
              ,year
              )
@@ -95,7 +96,7 @@ ORDER BY decode(school, 'network', 10
                         ,'SPARK'  , 50
                         ,'THRIVE' , 60
                )
-        ,year DESC
+        ,YEAR DESC
         
 ;
 --no cube, keep audit detail
